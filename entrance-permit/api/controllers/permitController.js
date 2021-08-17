@@ -1,5 +1,6 @@
 'use strict';
 
+// TODO: bring ORM to work with data model
 var permits = [
     {
         Id: 12345678,
