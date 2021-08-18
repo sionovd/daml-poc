@@ -2,14 +2,19 @@
   "name": "entrance-permit",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
+    "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
+    "start": "npm run build && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Artem Barger",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "babel-cli": "^6.24.0",
+    "babel-preset-es2020": "^1.0.2",
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
     "express": "^4.17.1",

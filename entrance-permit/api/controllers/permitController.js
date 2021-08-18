@@ -1,7 +1,4 @@
-'use strict';
-
-// TODO: bring ORM to work with data model
-var permits = [
+const permits = [
     {
         Id: 12345678,
         Name: "John Smith",
@@ -11,23 +8,23 @@ var permits = [
     },
 ]
 
-exports.list_all_permits = function(req, res) {
+export const listAllPermits = (req, res) => {
     // TODO: fetch all permits from DB
     res.json(permits);
 }
 
-exports.submit_permit = function(req, res) {
+export const submitPermit = (req, res) => {
     // TODO: submit permit into database
 }
 
-exports.get_permit = function(req, res) {
+export const getPermit = (req, res) => {
     // TODO: get permit
 }
 
-exports.update_permit = function(req, res) {
+export const updatePermit = (req, res) => {
     // TODO: update permit
 }
 
-exports.delete_permit = function(req, res) {
+export const deletePermit = (req, res) => {
     // TODO: delete permit
 }

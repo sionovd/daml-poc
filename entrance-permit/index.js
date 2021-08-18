@@ -1,15 +1,16 @@
-var express = require('express'),
-    app = express(),
-    port = process.env.PORT || 8080,
-    bodyParser = require('body-parser');
+import express from 'express'
+import bodyParser from 'body-parser';
+import routes from './api/routes/index.js'
+
+const app = express()
+const port = process.env.PORT || 8080
 
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
-app.use(function(req, res){
+app.use((req, res) => {
     res.status(404).send({url: req.originalUrl + ' not found'})
 })
 
-var routes = require('./api/routes/routeController')
 routes(app)
 
 app.listen(port);
