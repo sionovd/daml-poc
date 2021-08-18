@@ -1,30 +1,15 @@
-const permits = [
-    {
-        Id: 12345678,
-        Name: "John Smith",
-        Address: "Israel, TLV, Azrieli",
-        GivenAt: Date.now,
-        //ExpiresAt: nil,
-    },
-]
+const permitRepository = require('../repository/permitRepository');
 
-export const listAllPermits = (req, res) => {
-    // TODO: fetch all permits from DB
-    res.json(permits);
+exports.getPermits = async function(req, res) {
+    const params = {...req.params, ...req.query};
+
+    let permits = await permitRepository.getPermits(params.citizenId);
+    res.status(200).send(permits);
 }
 
-export const submitPermit = (req, res) => {
-    // TODO: submit permit into database
-}
+exports.addPermit = async function(req, res) {
+    const params = {...req.params, ...req.query};
 
-export const getPermit = (req, res) => {
-    // TODO: get permit
-}
-
-export const updatePermit = (req, res) => {
-    // TODO: update permit
-}
-
-export const deletePermit = (req, res) => {
-    // TODO: delete permit
+    await permitRepository.addPermit(params.citizenId, params.permitId, params.startDate, params.endDate, params.club);
+    res.status(200).send('Permit added');
 }
