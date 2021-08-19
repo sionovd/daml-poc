@@ -1,0 +1,33 @@
+module Passage where
+
+import DA.Optional
+
+import Permit
+
+validatePermit : (Passage, ContractId Permit) -> Script (ContractId Passage)
+validatePermit (passage, permitKey) = do
+  optionalPermitId <- lookupByKey @Permit permitKey
+  assertMsg "Permit must exist" (isNone optionalPermitId)
+  permitId <- fromSome optionalPermitId
+  permit <- fetchByKey @Permit permitId
+  assertMsg "Permit must be in valid date range" (
+            passage.passageDate >= permit.startDate && 
+            passage.passageDate <= permit.endDate
+          )
+  assertMsg "CitizenId must match between Permit and passage" (passage.citizenId == permit.citizenId)
+  assertMsg "Club must match between Permit and passage" (passage.club == permit.club)
+
+template Passage with
+    issuer: Party
+    passageId: Int
+    citizenId: Int -- Maybe will become a party?
+    club: Text
+    passageDate: Date
+    permitKey: ContractId Permit
+  where
+    signatory issuer
+
+    key (issuer, passageId) : (Party, Int)
+    maintainer key._1
+
+    ensure validatePermit this permitKey

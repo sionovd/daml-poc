@@ -1,0 +1,16 @@
+module Permit where
+
+template Permit with
+    issuer: Party
+    permitId: Int
+    citizenId: Int -- Maybe will become a party?
+    club: Text
+    startDate: Date
+    endDate: Date
+  where
+    signatory issuer
+
+    key (issuer, permitId) : (Party, Int)
+    maintainer key._1
+
+    ensure startDate <= endDate

@@ -117,3 +117,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# daml stuff
+/.daml
+daml/.daml
+daml/build
+
+*.log
