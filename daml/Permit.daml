@@ -2,7 +2,7 @@ module Permit where
 
 template Permit with
     issuer: Party
-    permitId: Int
+    admin: Party
     citizenId: Int -- Maybe will become a party?
     club: Text
     startDate: Date
@@ -10,7 +10,11 @@ template Permit with
   where
     signatory issuer
 
-    key (issuer, permitId) : (Party, Int)
-    maintainer key._1
-
     ensure startDate <= endDate
+
+    controller admin can
+      RevokePermit: ()
+        do return ()
+
+
+

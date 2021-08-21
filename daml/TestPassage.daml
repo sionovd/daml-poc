@@ -1,0 +1,46 @@
+module TestPassage where
+
+import Daml.Script
+import DA.Date
+
+import Passage
+import Permit
+
+type PassageId = ContractId Passage
+type PassageRequestId = ContractId PassageRequest
+
+testRequest : Script PassageRequestId
+testRequest = script do
+    let
+        citizenId = 201111113
+        club = "coco jumbo"
+    entrancePermit <- allocateParty "entrancePermit"
+    permitCid <- submit entrancePermit do
+        createCmd Permit with
+            issuer = entrancePermit
+            admin = entrancePermit
+            citizenId = citizenId
+            club = club
+            startDate = date 2021 Aug 25
+            endDate =  date 2021 Aug 30
+
+    submit entrancePermit do
+        archiveCmd permitCid
+
+    req <- submit entrancePermit do
+        createCmd PassageRequest with
+            issuer = entrancePermit
+            admin = entrancePermit
+            citizenId = citizenId
+            club = club
+            passageDate = date 2021 Aug 27
+            permitCid = permitCid
+            isAccepted = False
+
+    -- Fails because the permit is archived
+    submitMustFail entrancePermit do
+        exerciseCmd req AcceptPassage
+
+    return req
+
+    

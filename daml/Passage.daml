@@ -1,33 +1,60 @@
 module Passage where
 
-import DA.Optional
-
 import Permit
 
-validatePermit : (Passage, ContractId Permit) -> Script (ContractId Passage)
-validatePermit (passage, permitKey) = do
-  optionalPermitId <- lookupByKey @Permit permitKey
-  assertMsg "Permit must exist" (isNone optionalPermitId)
-  permitId <- fromSome optionalPermitId
-  permit <- fetchByKey @Permit permitId
-  assertMsg "Permit must be in valid date range" (
-            passage.passageDate >= permit.startDate && 
-            passage.passageDate <= permit.endDate
-          )
-  assertMsg "CitizenId must match between Permit and passage" (passage.citizenId == permit.citizenId)
-  assertMsg "Club must match between Permit and passage" (passage.club == permit.club)
-
+-- Represents the actual passage (if there is a contract, it means someone passed.)
 template Passage with
     issuer: Party
-    passageId: Int
+    admin: Party
     citizenId: Int -- Maybe will become a party?
     club: Text
     passageDate: Date
-    permitKey: ContractId Permit
+    permitCid: ContractId Permit
+    passageRequest: ContractId PassageRequest
   where
     signatory issuer
 
-    key (issuer, passageId) : (Party, Int)
-    maintainer key._1
 
-    ensure validatePermit this permitKey
+-- Represents the passage request. With this contract, you can create a passage (if it is valid)
+template PassageRequest
+  with
+    issuer: Party
+    admin: Party
+    citizenId: Int -- Maybe will become a party?
+    club: Text
+    passageDate: Date
+    permitCid: ContractId Permit
+    isAccepted: Bool
+  where
+    signatory issuer
+
+    controller issuer can
+      AcceptPassage: (ContractId PassageRequest, ContractId Permit, ContractId Passage)
+        do
+          -- Request validation
+          permit <- fetch permitCid
+          assertMsg "Permit must be in valid date range" (
+                    passageDate >= permit.startDate && 
+                    passageDate <= permit.endDate
+                  )
+          assertMsg "CitizenId must match between Permit and passage" (citizenId == permit.citizenId)
+          assertMsg "Club must match between Permit and passage" (club == permit.club)
+
+          passageRequest <- create PassageRequest
+            with
+              isAccepted = True
+              ..
+
+          passage <- create Passage 
+            with 
+              passageRequest = passageRequest
+              ..
+
+          return (passageRequest, permitCid, passage)
+      
+      CancelRequest: ()
+        do return ()
+
+    controller admin can
+      RevokeRequest: ()
+        do return()

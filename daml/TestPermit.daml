@@ -1,0 +1,20 @@
+module TestPermit where
+
+import Daml.Script
+import DA.Date
+
+import Permit
+
+type PermitId = ContractId Permit
+
+test : Script PermitId
+test = script do
+    entrancePermit <- allocateParty "entrancePermit"
+    submit entrancePermit do
+        createCmd Permit with
+            issuer = entrancePermit
+            admin = entrancePermit
+            citizenId = 123123
+            club = "coco jumbo"
+            startDate = date 2021 Aug 25
+            endDate =  date 2021 Aug 30
