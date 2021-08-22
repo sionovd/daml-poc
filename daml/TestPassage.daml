@@ -18,7 +18,6 @@ testRequest = script do
     permitCid <- submit entrancePermit do
         createCmd Permit with
             issuer = entrancePermit
-            admin = entrancePermit
             citizenId = citizenId
             club = club
             startDate = date 2021 Aug 25

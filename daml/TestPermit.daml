@@ -13,7 +13,6 @@ test = script do
     submit entrancePermit do
         createCmd Permit with
             issuer = entrancePermit
-            admin = entrancePermit
             citizenId = 123123
             club = "coco jumbo"
             startDate = date 2021 Aug 25

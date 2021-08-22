@@ -2,10 +2,12 @@ module Passage where
 
 import Permit
 
+type PassageCid = ContractId Passage
+type RejectedRequestCid = ContractId RejectedPassageRequest
+
 -- Represents the actual passage (if there is a contract, it means someone passed.)
 template Passage with
     issuer: Party
-    admin: Party
     citizenId: Int -- Maybe will become a party?
     club: Text
     passageDate: Date
@@ -15,46 +17,69 @@ template Passage with
     signatory issuer
 
 
--- Represents the passage request. With this contract, you can create a passage (if it is valid)
-template PassageRequest
+template RejectedPassageRequest 
   with
     issuer: Party
-    admin: Party
     citizenId: Int -- Maybe will become a party?
     club: Text
     passageDate: Date
     permitCid: ContractId Permit
-    isAccepted: Bool
+    reason: Text
+  where
+    signatory issuer
+    
+
+-- Represents the passage request. With this contract, you can create a passage (if it is valid)
+template PassageRequest
+  with
+    issuer: Party
+    citizenId: Int -- Maybe will become a party?
+    club: Text
+    passageDate: Date
+    permitCid: ContractId Permit
   where
     signatory issuer
 
     controller issuer can
-      AcceptPassage: (ContractId PassageRequest, ContractId Permit, ContractId Passage)
+      nonconsuming AcceptPassage : Either RejectedRequestCid PassageCid
         do
           -- Request validation
           permit <- fetch permitCid
-          assertMsg "Permit must be in valid date range" (
-                    passageDate >= permit.startDate && 
-                    passageDate <= permit.endDate
-                  )
-          assertMsg "CitizenId must match between Permit and passage" (citizenId == permit.citizenId)
-          assertMsg "Club must match between Permit and passage" (club == permit.club)
+          if passageDate < permit.startDate || passageDate > permit.endDate 
+            then do
+              rejRequest <- create RejectedPassageRequest 
+                with
+                  reason = "Permit must be in valid date range"
+                  ..
+              let returnValue = Left rejRequest
+              return returnValue
+            else do
+            if citizenId /= permit.citizenId
+              then do
+                rejRequest <- create RejectedPassageRequest 
+                  with
+                    reason = "CitizenId must match between Permit and passage"
+                    ..
+                let returnValue = Left rejRequest
+                return returnValue
+            else do
+            if club /= permit.club
+              then do
+                rejRequest <- create RejectedPassageRequest 
+                  with
+                    reason = "Club must match between Permit and passage"
+                    ..
+                let returnValue = Left rejRequest
+                return returnValue
+            else do
+              let passageRequestCid = self
 
-          passageRequest <- create PassageRequest
-            with
-              isAccepted = True
-              ..
-
-          passage <- create Passage 
-            with 
-              passageRequest = passageRequest
-              ..
-
-          return (passageRequest, permitCid, passage)
+              passage <- create Passage 
+                with 
+                  passageRequest = passageRequestCid
+                  ..
+              let createdPassage = Right passage
+              return createdPassage
       
       CancelRequest: ()
         do return ()
-
-    controller admin can
-      RevokeRequest: ()
-        do return()
