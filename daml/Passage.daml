@@ -2,25 +2,35 @@ module Passage where
 
 import Permit
 
-type PassageCid = ContractId Passage
-type RejectedRequestCid = ContractId RejectedPassageRequest
-
 -- Represents the actual passage (if there is a contract, it means someone passed.)
 template Passage with
+    id: Int
+    master: Party
     issuer: Party
-    citizenId: Int -- Maybe will become a party?
+    readers: [Party]
+    citizenId: Int 
     club: Text
     passageDate: Date
     permitCid: ContractId Permit
-    passageRequest: ContractId PassageRequest
   where
     signatory issuer
+    observer master, readers
+    key (id, issuer) : (Int, Party)
+    maintainer key._2
+    ensure (issuer == master && readers /= []) || (issuer /= master && null readers)
+
+    controller master can
+      Passage_Synchronize : ContractId Passage
+        with
+          new_readers: [Party]
+        do 
+          create Passage with readers = new_readers,  issuer = master, .. 
 
 
 template RejectedPassageRequest 
   with
     issuer: Party
-    citizenId: Int -- Maybe will become a party?
+    citizenId: Int
     club: Text
     passageDate: Date
     permitCid: ContractId Permit
@@ -41,7 +51,7 @@ template PassageRequest
     signatory issuer
 
     controller issuer can
-      nonconsuming AcceptPassage : Either RejectedRequestCid PassageCid
+      nonconsuming AcceptPassage : Either (ContractId RejectedPassageRequest) (ContractId Passage)
         do
           -- Request validation
           permit <- fetch permitCid
