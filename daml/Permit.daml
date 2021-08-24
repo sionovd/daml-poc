@@ -14,16 +14,19 @@ template Permit with
     endDate: Time
   where
     signatory issuer
-    observer readers
+    observer master, readers
     key (id, issuer) : (Int, Party)
     maintainer key._2
 
-    ensure startDate <= endDate
+    ensure startDate < endDate && 
+      ((issuer == master && readers /= []) || (issuer /= master && null readers))
 
     controller master can
-      Synchronize : ContractId Permit
+      Permit_Synchronize : ContractId Permit
+        with
+          new_readers: [Party]
         do 
-          create Permit with issuer = master, .. 
+          create Permit with readers = new_readers,  issuer = master, .. 
 
 test_permit = scenario do
   master <-  getParty "MainServer"
@@ -57,7 +60,7 @@ test_permit = scenario do
     create Permit with 
       id=3
       issuer=server1 
-      readers = [master, server2]
+      readers = []
       citizenId=123456782
       club="badabing"
       startDate=time (date 2021 Aug 24) 14 30 00  
@@ -69,7 +72,7 @@ test_permit = scenario do
     create Permit with 
       id=3
       issuer=server1 
-      readers = [master, server2]
+      readers = []
       citizenId=123456782
       club="badabing"
       startDate=time (date 2021 Aug 24) 14 30 00  
@@ -81,7 +84,7 @@ test_permit = scenario do
     create Permit with 
       id=1
       issuer=server1 
-      readers = [master, server2]
+      readers = []
       citizenId=123456782
       club="badabing"
       startDate=time (date 2021 Aug 24) 14 30 00  
@@ -89,9 +92,34 @@ test_permit = scenario do
       ..
 
   sync_with_master <- submit master do 
-    exercise valid_permit_by_server1 Synchronize
+    exercise valid_permit_by_server1 Permit_Synchronize
+      with new_readers = [server1, server2]
 
   sync_with_master_conflict <- submitMustFail master do
-    exercise permit_with_existing_id_in_master Synchronize
+    exercise permit_with_existing_id_in_master Permit_Synchronize
+      with new_readers = [server1, server2]
   
+
+
+  return ()
+
+test_reading_permissions = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+
+  valid_permit_by_server1 <- submit server1 do
+    create Permit with 
+      id=10
+      issuer=server1 
+      readers = []
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
+  unautorized_access <- submitMustFail server2 do
+    fetch valid_permit_by_server1
+
   return ()
