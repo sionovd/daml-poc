@@ -11,7 +11,7 @@ template Passage with
     citizenId: Int 
     club: Text
     passageDate: Date
-    permitCid: ContractId Permit
+    permitCid: Either (ContractId GlobalPermit) (ContractId SingularPermit)
   where
     signatory issuer
     observer master, readers
@@ -33,7 +33,7 @@ template RejectedPassageRequest
     citizenId: Int
     club: Text
     passageDate: Date
-    permitCid: ContractId Permit
+    permitCid: Either (ContractId GlobalPermit) (ContractId SingularPermit)
     reason: Text
   where
     signatory issuer
@@ -43,10 +43,10 @@ template RejectedPassageRequest
 template PassageRequest
   with
     issuer: Party
-    citizenId: Int -- Maybe will become a party?
+    citizenId: Int
     club: Text
     passageDate: Date
-    permitCid: ContractId Permit
+    permitCid: Either (ContractId GlobalPermit) (ContractId SingularPermit)
   where
     signatory issuer
 

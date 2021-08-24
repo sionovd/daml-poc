@@ -3,7 +3,32 @@ module Permit where
 import DA.Date
 import DA.Time
 
-template Permit with
+template SingularPermit
+  with
+    id: Int
+    master: Party
+    issuer: Party
+    citizenId: Int
+    club: Text
+    startDate: Time
+    endDate: Time
+  where
+    signatory issuer
+    observer master
+    key (id, issuer) : (Int, Party)
+    maintainer key._2
+
+    ensure startDate < endDate
+
+    controller master can
+      Permit_Synchronize : ContractId GlobalPermit
+        with
+          new_readers: [Party]
+        do 
+          create GlobalPermit with issuer = master, readers = new_readers, .. 
+    
+
+template GlobalPermit with
     id: Int
     master: Party
     issuer: Party
@@ -18,15 +43,7 @@ template Permit with
     key (id, issuer) : (Int, Party)
     maintainer key._2
 
-    ensure startDate < endDate && 
-      ((issuer == master && readers /= []) || (issuer /= master && null readers))
-
-    controller master can
-      Permit_Synchronize : ContractId Permit
-        with
-          new_readers: [Party]
-        do 
-          create Permit with readers = new_readers,  issuer = master, .. 
+    ensure startDate < endDate
 
 test_permit = scenario do
   master <-  getParty "MainServer"
@@ -34,7 +51,7 @@ test_permit = scenario do
   server2 <-  getParty "server2"
 
   valid_permit_by_master <- submit master do
-    create Permit with 
+    create GlobalPermit with 
       id=1
       issuer=master 
       readers = [server1, server2]
@@ -46,7 +63,7 @@ test_permit = scenario do
 
   -- this permit is invalid because its startDate is after the endDate
   invalid_permit <- submitMustFail master do
-    create Permit with 
+    create GlobalPermit with 
       id=2
       issuer=master 
       readers = [server1, server2]
@@ -57,10 +74,9 @@ test_permit = scenario do
       ..
   
   valid_permit_by_server1 <- submit server1 do
-    create Permit with 
+    create SingularPermit with 
       id=3
       issuer=server1 
-      readers = []
       citizenId=123456782
       club="badabing"
       startDate=time (date 2021 Aug 24) 14 30 00  
@@ -69,10 +85,9 @@ test_permit = scenario do
 
   -- this permit is invalid because it uses an id that already exists
   duplicate_permit_by_server1 <- submitMustFail server1 do
-    create Permit with 
+    create SingularPermit with 
       id=3
       issuer=server1 
-      readers = []
       citizenId=123456782
       club="badabing"
       startDate=time (date 2021 Aug 24) 14 30 00  
@@ -81,10 +96,9 @@ test_permit = scenario do
   
   -- we'll use this permit to create a conflict between server1 and master (because of duplicate IDs)
   permit_with_existing_id_in_master <- submit server1 do
-    create Permit with 
+    create SingularPermit with 
       id=1
       issuer=server1 
-      readers = []
       citizenId=123456782
       club="badabing"
       startDate=time (date 2021 Aug 24) 14 30 00  
@@ -109,10 +123,9 @@ test_reading_permissions = scenario do
   server2 <-  getParty "server2"
 
   valid_permit_by_server1 <- submit server1 do
-    create Permit with 
+    create SingularPermit with 
       id=10
       issuer=server1 
-      readers = []
       citizenId=123456782
       club="badabing"
       startDate=time (date 2021 Aug 24) 14 30 00  
