@@ -1,95 +1,39 @@
 module Passage where
 
-import Permit
-
 -- Represents the actual passage (if there is a contract, it means someone passed.)
-template Passage with
+template LocalPassage with
     id: Int
     master: Party
     issuer: Party
-    readers: [Party]
     citizenId: Int 
     club: Text
-    passageDate: Date
-    permitCid: Either (ContractId GlobalPermit) (ContractId SingularPermit)
+    passageDate: Time
+    permitCid: Int
   where
     signatory issuer
-    observer master, readers
+    observer master
     key (id, issuer) : (Int, Party)
     maintainer key._2
-    ensure (issuer == master && readers /= []) || (issuer /= master && null readers)
+    ensure issuer /= master
 
     controller master can
-      Passage_Synchronize : ContractId Passage
+      Passage_Synchronize : ContractId GlobalPassage
         with
           new_readers: [Party]
         do 
-          create Passage with readers = new_readers,  issuer = master, .. 
+          create GlobalPassage with readers = new_readers, .. 
 
-
-template RejectedPassageRequest 
-  with
-    issuer: Party
-    citizenId: Int
+template GlobalPassage with
+    id: Int
+    master: Party
+    readers: [Party]
+    citizenId: Int 
     club: Text
-    passageDate: Date
-    permitCid: Either (ContractId GlobalPermit) (ContractId SingularPermit)
-    reason: Text
+    passageDate: Time
+    permitCid: Int
   where
-    signatory issuer
-    
+    signatory master
+    observer readers
+    key(id, master) : (Int, Party)
+    maintainer key._2
 
--- Represents the passage request. With this contract, you can create a passage (if it is valid)
-template PassageRequest
-  with
-    issuer: Party
-    citizenId: Int
-    club: Text
-    passageDate: Date
-    permitCid: Either (ContractId GlobalPermit) (ContractId SingularPermit)
-  where
-    signatory issuer
-
-    controller issuer can
-      nonconsuming AcceptPassage : Either (ContractId RejectedPassageRequest) (ContractId Passage)
-        do
-          -- Request validation
-          permit <- fetch permitCid
-          if passageDate < permit.startDate || passageDate > permit.endDate 
-            then do
-              rejRequest <- create RejectedPassageRequest 
-                with
-                  reason = "Permit must be in valid date range"
-                  ..
-              let returnValue = Left rejRequest
-              return returnValue
-            else do
-            if citizenId /= permit.citizenId
-              then do
-                rejRequest <- create RejectedPassageRequest 
-                  with
-                    reason = "CitizenId must match between Permit and passage"
-                    ..
-                let returnValue = Left rejRequest
-                return returnValue
-            else do
-            if club /= permit.club
-              then do
-                rejRequest <- create RejectedPassageRequest 
-                  with
-                    reason = "Club must match between Permit and passage"
-                    ..
-                let returnValue = Left rejRequest
-                return returnValue
-            else do
-              let passageRequestCid = self
-
-              passage <- create Passage 
-                with 
-                  passageRequest = passageRequestCid
-                  ..
-              let createdPassage = Right passage
-              return createdPassage
-      
-      CancelRequest: ()
-        do return ()
