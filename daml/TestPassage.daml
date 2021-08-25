@@ -1,45 +1,156 @@
 module TestPassage where
 
-import Daml.Script
 import DA.Date
+import DA.Time
 
 import Passage
-import Permit
 
-type PassageId = ContractId Passage
-type PassageRequestId = ContractId PassageRequest
+test_passage : Scenario ()
+test_passage = scenario do
+  master <- getParty "MainServer"
+  server1 <- getParty "server1"
+  server2 <- getParty "server2"
 
-testRequest : Script PassageRequestId
-testRequest = script do
-    let
-        citizenId = 201111113
-        club = "coco jumbo"
-    entrancePermit <- allocateParty "entrancePermit"
-    permitCid <- submit entrancePermit do
-        createCmd Permit with
-            issuer = entrancePermit
-            citizenId = citizenId
-            club = club
-            startDate = date 2021 Aug 25
-            endDate =  date 2021 Aug 30
+  valid_passage_by_master <- submit master do
+    create GlobalPassage with 
+      id=11
+      master=master
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10
+  
+  valid_passage_by_server1 <- submit server1 do
+    create LocalPassage with 
+      id=10321
+      master=master
+      issuer = server1
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10 
 
-    submit entrancePermit do
-        archiveCmd permitCid
+  -- this passage is invalid because it uses an id that already exists
+  duplicate_passage_by_server1 <- submitMustFail server1 do
+    create LocalPassage with 
+      id=10321
+      master=master
+      issuer=server1 
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10
 
-    req <- submit entrancePermit do
-        createCmd PassageRequest with
-            issuer = entrancePermit
-            admin = entrancePermit
-            citizenId = citizenId
-            club = club
-            passageDate = date 2021 Aug 27
-            permitCid = permitCid
-            isAccepted = False
+  
+  return ()
 
-    -- Fails because the permit is archived
-    submitMustFail entrancePermit do
-        exerciseCmd req AcceptPassage
 
-    return req
+test_passage_sync : Scenario ()
+test_passage_sync = scenario do
+  master <- getParty "MainServer"
+  server1 <- getParty "server1"
+  server2 <- getParty "server2"
 
-    
+  valid_passage_by_master <- submit master do
+    create GlobalPassage with 
+      id=11
+      master=master
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10
+
+  valid_passage_by_server1 <- submit server1 do
+    create LocalPassage with 
+      id=10321
+      master=master
+      issuer = server1
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10 
+
+  -- we'll use this passage to create a conflict between server1 and master (because of duplicate IDs)
+  passage_with_existing_id_in_master <- submit server1 do
+    create LocalPassage with 
+      id=11
+      issuer=server1 
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10  
+      ..
+
+  sync_with_master <- submit master do 
+    exercise valid_passage_by_server1 Passage_Synchronize
+      with readers = [server1, server2]
+
+  sync_with_master_conflict <- submitMustFail master do
+    exercise passage_with_existing_id_in_master Passage_Synchronize
+      with readers = [server1, server2]
+  return ()
+
+
+test_passage_reading_permissions = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+
+  valid_passage_by_server1 <- submit server1 do
+    create LocalPassage with 
+      id=10
+      issuer=server1 
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10  
+      ..
+
+  {- 
+  this fails because server2 is not a stakeholder of the passage that server1 created 
+  (because it's local to server1)
+  -}
+  unautorized_access <- submitMustFail server2 do
+    fetch valid_passage_by_server1
+
+  return ()
+
+test_master_can_create_only_global_passage = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+
+  -- Fails because master can only create Global Passage
+  local_passage_by_master <- submitMustFail master do
+    create LocalPassage with 
+      id=10
+      issuer=master 
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10  
+      ..
+
+  global_passage_by_master <- submit master do
+    create GlobalPassage with 
+      id=10
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10  
+      ..
+
+  global_passage_by_server1 <- submitMustFail server1 do
+    create GlobalPassage with 
+      id=100
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10  
+      ..
+
+  return ()
