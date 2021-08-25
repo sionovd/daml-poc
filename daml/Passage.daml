@@ -1,6 +1,5 @@
 module Passage where
 
--- Represents the actual passage (if there is a contract, it means someone passed.)
 template LocalPassage with
     id: Int
     master: Party
@@ -8,7 +7,7 @@ template LocalPassage with
     citizenId: Int 
     club: Text
     passageDate: Time
-    permitCid: Int
+    permitId: Int
   where
     signatory issuer
     observer master
@@ -19,9 +18,9 @@ template LocalPassage with
     controller master can
       Passage_Synchronize : ContractId GlobalPassage
         with
-          new_readers: [Party]
+          readers: [Party]
         do 
-          create GlobalPassage with readers = new_readers, .. 
+          create GlobalPassage with .. 
 
 template GlobalPassage with
     id: Int
@@ -30,7 +29,7 @@ template GlobalPassage with
     citizenId: Int 
     club: Text
     passageDate: Time
-    permitCid: Int
+    permitId: Int
   where
     signatory master
     observer readers

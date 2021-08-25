@@ -1,19 +1,125 @@
 module TestPermit where
 
-import Daml.Script
 import DA.Date
+import DA.Time
 
 import Permit
 
-type PermitId = ContractId Permit
+test_permit : Scenario ()
+test_permit = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
 
-test : Script PermitId
-test = script do
-    entrancePermit <- allocateParty "entrancePermit"
-    submit entrancePermit do
-        createCmd Permit with
-            issuer = entrancePermit
-            citizenId = 123123
-            club = "coco jumbo"
-            startDate = date 2021 Aug 25
-            endDate =  date 2021 Aug 30
+  valid_permit_by_master <- submit master do
+    create GlobalPermit with 
+      id=1
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
+  -- this permit is invalid because its startDate is after the endDate
+  invalid_permit <- submitMustFail master do
+    create GlobalPermit with 
+      id=2
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 25) 14 30 00  
+      endDate=time (date 2021 Aug 24) 19 31 14  
+      ..
+  
+  valid_permit_by_server1 <- submit server1 do
+    create LocalPermit with 
+      id=3
+      issuer=server1 
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
+  -- this permit is invalid because it uses an id that already exists
+  duplicate_permit_by_server1 <- submitMustFail server1 do
+    create LocalPermit with 
+      id=3
+      issuer=server1 
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+  
+  -- we'll use this permit to create a conflict between server1 and master (because of duplicate IDs)
+  permit_with_existing_id_in_master <- submit server1 do
+    create LocalPermit with 
+      id=1
+      issuer=server1 
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
+  sync_with_master <- submit master do 
+    exercise valid_permit_by_server1 Permit_Synchronize
+      with readers = [server1, server2]
+
+  sync_with_master_conflict <- submitMustFail master do
+    exercise permit_with_existing_id_in_master Permit_Synchronize
+      with readers = [server1, server2]
+  
+
+
+  return ()
+
+test_reading_permissions = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+
+  valid_permit_by_server1 <- submit server1 do
+    create LocalPermit with 
+      id=10
+      issuer=server1 
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
+  unautorized_access <- submitMustFail server2 do
+    fetch valid_permit_by_server1
+
+  return ()
+
+test_master_can_create_only_global_permit = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+
+  -- Fails because master can only create Global Permit
+  local_permit_by_master <- submitMustFail master do
+    create LocalPermit with 
+      id=10
+      issuer=master 
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
+  global_permit_by_master <- submit master do
+    create GlobalPermit with 
+      id=10
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
+  return ()
