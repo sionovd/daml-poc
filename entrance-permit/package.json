@@ -13,7 +13,9 @@
     "nodemon": "^2.0.12"
   },
   "dependencies": {
+    "@daml/ledger": "^1.16.0",
     "express": "^4.17.1",
+    "jwt-simple": "^0.5.6",
     "pg": "^8.7.1"
   }
 }

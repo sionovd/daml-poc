@@ -1,4 +1,5 @@
 const permitRepository = require('../repository/permitRepository');
+const permitConnector = require('../daml/permitConnector');
 
 exports.getPermits = async function(req, res) {
     const params = {...req.params, ...req.query};
