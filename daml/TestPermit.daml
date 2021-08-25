@@ -53,6 +53,43 @@ test_permit = scenario do
       endDate=time (date 2021 Aug 25) 19 31 14  
       ..
   
+  duplicate_permit_by_master <- submitMustFail master do
+    create GlobalPermit with 
+      id=1
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
+  return ()
+
+test_permit_sync = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+
+  valid_permit_by_master <- submit master do
+    create GlobalPermit with 
+      id=1
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+  
+  valid_permit_by_server1 <- submit server1 do
+    create LocalPermit with 
+      id=3
+      issuer=server1 
+      citizenId=123456782
+      club="badabing"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14  
+      ..
+
   -- we'll use this permit to create a conflict between server1 and master (because of duplicate IDs)
   permit_with_existing_id_in_master <- submit server1 do
     create LocalPermit with 
@@ -71,8 +108,6 @@ test_permit = scenario do
   sync_with_master_conflict <- submitMustFail master do
     exercise permit_with_existing_id_in_master Permit_Synchronize
       with readers = [server1, server2]
-  
-
 
   return ()
 

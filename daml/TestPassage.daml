@@ -42,6 +42,15 @@ test_passage = scenario do
       passageDate = time (date 2021 Aug 24) 14 30 00  
       permitId = 10
 
+  duplicate_passage_by_master <- submitMustFail master do 
+    create GlobalPassage with 
+      id=11
+      master=master
+      readers = [server1, server2]
+      citizenId=123456782
+      club="badabing"
+      passageDate = time (date 2021 Aug 24) 14 30 00  
+      permitId = 10
   
   return ()
 
