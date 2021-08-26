@@ -5,7 +5,6 @@ const credentials = damlConfig.computeCredentials('Server1');
 const Passage = require('@daml.js/daml');
 
 const ledger = new Ledger.default({token: credentials.token, httpBaseUrl: damlConfig.httpBaseUrl, wsBaseUrl: damlConfig.wsBaseUrl});
-const user = {username: credentials.party, following: []};
 
 exports.createPassageContract = async (citizenId, passageId, club) => {
     let passageContract = await ledger.fetchByKey(Passage.Passage.LocalPassage, { _1: passageId, _2: credentials.party });

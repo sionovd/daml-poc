@@ -5,7 +5,6 @@ const credentials = damlConfig.computeCredentials('Server1');
 const Permit = require('@daml.js/daml');
 
 const ledger = new Ledger.default({token: credentials.token, httpBaseUrl: damlConfig.httpBaseUrl, wsBaseUrl: damlConfig.wsBaseUrl});
-const user = {username: credentials.party, following: []};
 
 exports.createPermitContract = async (citizenId, permitId, startDate, endDate, club) => {
     let permitContract = await ledger.fetchByKey(Permit.Permit.LocalPermit, { _1: permitId, _2: credentials.party });
