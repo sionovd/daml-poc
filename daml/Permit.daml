@@ -1,0 +1,42 @@
+module Permit where
+
+template LocalPermit
+  with
+    id: Int
+    master: Party
+    issuer: Party
+    citizenId: Int
+    club: Text
+    startDate: Time
+    endDate: Time
+  where
+    signatory issuer
+    observer master
+    key (id, issuer) : (Int, Party)
+    maintainer key._2
+
+    ensure startDate < endDate && issuer /= master
+
+    controller master can
+      Permit_Synchronize : ContractId GlobalPermit
+        with
+          readers: [Party]
+        do 
+          create GlobalPermit with .. 
+    
+
+template GlobalPermit with
+    id: Int
+    master: Party
+    readers: [Party]
+    citizenId: Int
+    club: Text
+    startDate: Time
+    endDate: Time
+  where
+    signatory master
+    observer readers
+    key (id, master) : (Int, Party)
+    maintainer key._2
+
+    ensure startDate < endDate

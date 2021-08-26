@@ -1,0 +1,38 @@
+module Passage where
+
+template LocalPassage with
+    id: Int
+    master: Party
+    issuer: Party
+    citizenId: Int 
+    club: Text
+    passageDate: Time
+    permitId: Int
+  where
+    signatory issuer
+    observer master
+    key (id, issuer) : (Int, Party)
+    maintainer key._2
+    ensure issuer /= master
+
+    controller master can
+      Passage_Synchronize : ContractId GlobalPassage
+        with
+          readers: [Party]
+        do 
+          create GlobalPassage with .. 
+
+template GlobalPassage with
+    id: Int
+    master: Party
+    readers: [Party]
+    citizenId: Int 
+    club: Text
+    passageDate: Time
+    permitId: Int
+  where
+    signatory master
+    observer readers
+    key(id, master) : (Int, Party)
+    maintainer key._2
+
