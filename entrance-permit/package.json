@@ -13,8 +13,9 @@
     "nodemon": "^2.0.12"
   },
   "dependencies": {
-    "@daml.js/my-project-name": "file:daml.js/my-project-name-0.1.0",
+    "@daml.js/daml": "file:daml.js/daml-0.1.0",
     "@daml/ledger": "^1.16.0",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "jwt-simple": "^0.5.6",
     "pg": "^8.7.1"

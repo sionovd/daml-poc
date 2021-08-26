@@ -1,8 +1,8 @@
 const encode = require('jwt-simple');
 
-const ledgerId = 'my-project-name-sandbox';
+const ledgerId = 'daml-sandbox';
 
-const APPLICATION_ID = 'my-project-name';
+const APPLICATION_ID = 'daml';
 const SECRET_KEY = 'secret';
 
 function computeToken(party) {
@@ -22,5 +22,6 @@ exports.computeCredentials = (party) => {
 }
 
 // exports.httpBaseUrl = undefined;
-exports.httpBaseUrl = `http://localhost:7575/`
+exports.httpBaseUrl = `http://localhost:7575/`;
 exports.wsBaseUrl = "ws://localhost:7575/"; // same as for the http but ws (websocket)
+exports.master = "Master";
