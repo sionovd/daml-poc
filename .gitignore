@@ -123,5 +123,6 @@ dist
 /.daml
 daml/.daml
 daml/build
+*/daml.js/
 
 *.log
