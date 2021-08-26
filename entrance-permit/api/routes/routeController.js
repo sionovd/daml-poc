@@ -10,9 +10,9 @@ module.exports = function(app) {
 
         app.route('/passages/:citizenId')
             .get(wrapAsync(passageController.getPassages))
-            .post(wrapAsync(passageController.addPassage))
+            .post(wrapAsync(passageController.createPassage))
 
         app.route('/permits/:citizenId')
             .get(wrapAsync(permitController.getPermits))
-            .post(wrapAsync(permitController.addPermit))
+            .post(wrapAsync(permitController.createPermit))
 }

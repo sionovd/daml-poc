@@ -74,6 +74,7 @@ web_modules/
 
 # dotenv environment variables file
 .env
+*/.env
 .env.test
 .env.production
 
@@ -119,3 +120,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# daml stuff
+/.daml
+daml/.daml
+daml/build
+*/daml.js/
+*/daml.js
+
+*.log

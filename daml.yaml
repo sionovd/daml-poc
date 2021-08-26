@@ -1,0 +1,14 @@
+sdk-version: 1.16.0
+name: daml
+version: 0.1.0
+source: daml
+parties:
+- entrance-permit
+dependencies:
+- daml-prim
+- daml-stdlib
+- daml-trigger
+sandbox-options:
+- --wall-clock-time
+- --ledgerid=daml-sandbox
+start-navigator: false
