@@ -1,0 +1,29 @@
+import com.digitalasset.canton.domain.config;
+
+// Connect the participants to the domains
+
+val domainAConnectionConfig = DomainConnectionConfig(
+    domainA.name,
+    "http://20.56.179.251:13018",
+    false,
+    None,
+    None,
+    1,
+    None,
+    None
+)
+
+//buildingB.domains.connect(domainAConnectionConfig)
+buildingB.domains.connect_local(domainB)
+//buildingB.domains.connect(domainC)
+
+val masterDomainAlias = domainB.name
+
+// create the parties
+val masterSystem = buildingB.parties.enable("SystemB-Master")
+
+// Wait until the party enabling has taken effect and a heartbeat has been sent afterwards
+val bPartyAssignment = Set(masterSystem -> buildingB)
+//buildingA.parties.await_topology_heartbeat(bPartyAssignment)
+buildingB.parties.await_topology_heartbeat(bPartyAssignment)
+//buildingC.parties.await_topology_heartbeat(bPartyAssignment)

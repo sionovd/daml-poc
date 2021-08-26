@@ -10,7 +10,7 @@ buildingC.domains.connect_local(domainC)
 
 val aDomainAlias = domainA.name
 val masterDomainAlias = domainB.name
-val bDomainAlias = domainC.name
+val cDomainAlias = domainC.name
 
 // create the parties
 val systemA = buildingA.parties.enable("SystemA")
