@@ -3,7 +3,9 @@ name: daml
 version: 0.1.0
 source: daml
 parties:
-- entrance-permit
+- Server1
+- Server2
+- Master
 dependencies:
 - daml-prim
 - daml-stdlib
@@ -11,4 +13,4 @@ dependencies:
 sandbox-options:
 - --wall-clock-time
 - --ledgerid=daml-sandbox
-start-navigator: false
+start-navigator: true
