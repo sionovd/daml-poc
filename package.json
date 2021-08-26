@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@daml/ledger": "^1.16.0",
     "sequelize": "^6.6.5"
   }
 }

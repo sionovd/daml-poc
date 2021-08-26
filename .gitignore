@@ -72,6 +72,7 @@ web_modules/
 
 # dotenv environment variables file
 .env
+*/.env
 .env.test
 .env.production
 
@@ -122,5 +123,7 @@ dist
 /.daml
 daml/.daml
 daml/build
+*/daml.js/
+*/daml.js
 
 *.log
