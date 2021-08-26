@@ -1,6 +1,6 @@
 const pool = require('../../postgreSql.js').pool;
 
-exports.addPermit = async (citizenId, permitId, startDate, endDate, club) => {
+exports.createPermit = async (citizenId, permitId, startDate, endDate, club) => {
     await pool.query(`INSERT INTO public.permits(
         permit_id, citizen_id, start_date, end_date, club)
         VALUES ($1, $2, $3, $4, $5)`, [permitId, citizenId, startDate, endDate, club]);

@@ -21,4 +21,6 @@ exports.computeCredentials = (party) => {
     return {party, token, ledgerId};
 }
 
-exports.httpBaseUrl = `https://api.projectdabl.com/data/${ledgerId}/`
+// exports.httpBaseUrl = undefined;
+exports.httpBaseUrl = `http://localhost:7575/`
+exports.wsBaseUrl = "ws://localhost:7575/"; // same as for the http but ws (websocket)

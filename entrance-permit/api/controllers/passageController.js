@@ -1,4 +1,5 @@
 const passageRepository = require('../repository/passageRepository');
+// const passageConnector = require('../daml/passageConnector');
 
 exports.getPassages = async function(req, res) {
     const params = {...req.params, ...req.query};
@@ -7,9 +8,13 @@ exports.getPassages = async function(req, res) {
     res.status(200).send(passages);
 }
 
-exports.addPassage = async function(req, res) {
+exports.createPassage = async function(req, res) {
     const params = {...req.params, ...req.query};
 
-    await passageRepository.addPassage(params.citizenId,params.passageId, params.club);
-    res.status(200).send('Passage added');
+    let msg = 'Permit created';
+    await passageRepository.createPassage(params.citizenId,params.passageId, params.club);
+    // passageConnector.createPassageContract(params.citizenId, params.permitId, params.startDate, params.endDate, params.club).catch(r => {
+        // msg = "Permit created, couldn't add it to daml"
+    // });
+    res.status(200).send(msg);
 }

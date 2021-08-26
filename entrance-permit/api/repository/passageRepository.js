@@ -1,6 +1,6 @@
 const pool = require('../../postgreSql.js').pool;
 
-exports.addPassage = async (citizenId, passageId, club) => {
+exports.createPassage = async (citizenId, passageId, club) => {
     await pool.query(`INSERT INTO public.passages(
         passage_id, citizen_id, pass_date, club)
         VALUES ($1, $2, CURRENT_DATE, $3)`, [passageId, citizenId, club]);
