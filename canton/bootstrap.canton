@@ -1,5 +1,7 @@
 // Connect the participants to the domains
 
+nodes.local start
+
 buildingA.domains.connect_local(domainA)
 buildingA.domains.connect_local(domainB)
 buildingB.domains.connect_local(domainA)
@@ -22,3 +24,6 @@ val partyAssignment = Set(systemA -> buildingA, masterSystem -> buildingB, syste
 buildingA.parties.await_topology_heartbeat(partyAssignment)
 buildingB.parties.await_topology_heartbeat(partyAssignment)
 buildingC.parties.await_topology_heartbeat(partyAssignment)
+
+val darPath = Option(System.getProperty("./.daml/dist/daml-0.1.0.dar")).getOrElse("dars/CantonExamples.dar")
+participants.all.dars.upload(darPath)
