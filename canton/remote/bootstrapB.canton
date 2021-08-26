@@ -13,7 +13,7 @@ val domainAConnectionConfig = DomainConnectionConfig(
     None
 )
 
-//buildingB.domains.connect(domainAConnectionConfig)
+buildingB.domains.connect(domainAConnectionConfig)
 buildingB.domains.connect_local(domainB)
 //buildingB.domains.connect(domainC)
 
