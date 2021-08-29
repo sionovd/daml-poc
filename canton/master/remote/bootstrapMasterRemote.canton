@@ -23,8 +23,11 @@ def connectToRemoteDomain() = {
     participant.health.ping(participant)
 }
 
-connectToRemoteDomain()
+def uploadDar() = {
+    participants.all.dars.upload("../../daml-poc/.daml/dist/daml-0.1.0.dar")
+}
 
+connectToRemoteDomain()
 
 
 
