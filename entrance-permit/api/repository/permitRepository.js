@@ -11,3 +11,9 @@ exports.getPermits = async (citizenId) => {
     let permits = results.rows
     return permits;
 };
+
+exports.updatePermit = async (permitId, endDate) => {
+    await pool.query(`UPDATE permits p
+        SET end_date = $2
+        WHERE p.permit_id = $1;`, [permitId, endDate]);
+};

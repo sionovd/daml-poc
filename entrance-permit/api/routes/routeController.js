@@ -15,4 +15,5 @@ module.exports = function(app) {
         app.route('/permits/:citizenId')
             .get(wrapAsync(permitController.getPermits))
             .post(wrapAsync(permitController.createPermit))
+            .put(wrapAsync(permitController.updatePermit))
 }
