@@ -11,3 +11,9 @@ exports.getPermits = async (citizenId) => {
     let permits = results.rows
     return permits;
 };
+
+exports.getPermitById = async (permitId) => {
+    let results = await pool.query(`SELECT * FROM permits p WHERE p.permit_id = $1`, [permitId]);
+    let permit = results.rows
+    return permit;
+};

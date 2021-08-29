@@ -3,8 +3,23 @@ const damlConfig = require('./damlConfig');
 const credentials = damlConfig.computeCredentials('Server1');
 // const credentials = damlConfig.computeCredentials(process.env.issuer);
 const Passage = require('@daml.js/daml');
+const passageRepository = require('../repository/passageRepository');
 
-const ledger = new Ledger.default({token: credentials.token, httpBaseUrl: damlConfig.httpBaseUrl, wsBaseUrl: damlConfig.wsBaseUrl});
+const ledger = new Ledger.default({ token: credentials.token, httpBaseUrl: damlConfig.httpBaseUrl, wsBaseUrl: damlConfig.wsBaseUrl });
+
+// Check for GlobalPassage created by Master and Sync it
+ledger.streamQueries(Passage.Passage.GlobalPassage, [{ master: damlConfig.master }])
+    .on("change", async (state, events) => {
+        for (let passageEvent in events) {
+            const passage = events[passageEvent]?.created.payload;
+            if (passage != null && passage.originalIssuer != credentials.party) {
+                const isPassageExist = (await passageRepository.getPassageById(passage.id))?.length > 0;
+                if (!isPassageExist) {
+                    await passageRepository.createPassage(passage.citizenId, passage.id, passage.club);
+                }
+            }
+        }
+    });
 
 exports.createPassageContract = async (citizenId, passageId, club) => {
     let passageContract = await ledger.fetchByKey(Passage.Passage.LocalPassage, { _1: passageId, _2: credentials.party });

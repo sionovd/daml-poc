@@ -8,6 +8,12 @@ exports.createPassage = async (citizenId, passageId, club) => {
 
 exports.getPassages = async (citizenId) => {
     let results = await pool.query(`SELECT * FROM passages p WHERE p.citizen_id = $1`, [citizenId]);
-    let permits = results.rows
-    return permits;
+    let passages = results.rows
+    return passages;
+};
+
+exports.getPassageById = async (passageId) => {
+    let results = await pool.query(`SELECT * FROM passages p WHERE p.passage_id = $1`, [passageId]);
+    let passage = results.rows
+    return passage;
 };

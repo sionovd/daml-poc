@@ -14,6 +14,7 @@ test_permit = scenario do
   valid_permit_by_master <- submit master do
     create GlobalPermit with 
       id=1
+      originalIssuer=master
       readers = [server1, server2]
       citizenId=123456782
       club="badabing"
@@ -25,6 +26,7 @@ test_permit = scenario do
   invalid_permit <- submitMustFail master do
     create GlobalPermit with 
       id=2
+      originalIssuer=master
       readers = [server1, server2]
       citizenId=123456782
       club="badabing"
@@ -56,6 +58,7 @@ test_permit = scenario do
   duplicate_permit_by_master <- submitMustFail master do
     create GlobalPermit with 
       id=1
+      originalIssuer=master
       readers = [server1, server2]
       citizenId=123456782
       club="badabing"
@@ -73,6 +76,7 @@ test_permit_sync = scenario do
   valid_permit_by_master <- submit master do
     create GlobalPermit with 
       id=1
+      originalIssuer=master
       readers = [server1, server2]
       citizenId=123456782
       club="badabing"
@@ -150,6 +154,7 @@ test_master_can_create_only_global_permit = scenario do
   global_permit_by_master <- submit master do
     create GlobalPermit with 
       id=10
+      originalIssuer=master
       readers = [server1, server2]
       citizenId=123456782
       club="badabing"
