@@ -1,6 +1,6 @@
 const Ledger = require('@daml/ledger');
 const damlConfig = require('./damlConfig');
-const credentials = damlConfig.computeCredentials('buildingB::12202e5e2228f3f4554d034264408405f7354d0a231ba5e9d2934c543b2dd5a05eb4');
+const credentials = damlConfig.computeCredentials('Server1');
 // const credentials = damlConfig.computeCredentials(process.env.issuer);
 const Passage = require('@daml.js/daml');
 
