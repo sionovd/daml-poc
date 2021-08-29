@@ -20,10 +20,11 @@ template LocalPassage with
         with
           readers: [Party]
         do 
-          create GlobalPassage with .. 
+          create GlobalPassage with originalIssuer = issuer, .. 
 
 template GlobalPassage with
     id: Int
+    originalIssuer: Party
     master: Party
     readers: [Party]
     citizenId: Int 

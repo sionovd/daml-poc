@@ -22,11 +22,12 @@ template LocalPermit
         with
           readers: [Party]
         do 
-          create GlobalPermit with .. 
+          create GlobalPermit with originalIssuer = issuer, .. 
     
 
 template GlobalPermit with
     id: Int
+    originalIssuer: Party
     master: Party
     readers: [Party]
     citizenId: Int
