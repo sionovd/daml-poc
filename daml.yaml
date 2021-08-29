@@ -12,5 +12,5 @@ dependencies:
 - daml-trigger
 sandbox-options:
 - --wall-clock-time
-- --ledgerid=daml-sandbox
+- --ledgerid=postgres-ledger
 start-navigator: true

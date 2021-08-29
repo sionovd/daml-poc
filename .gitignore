@@ -126,4 +126,9 @@ daml/build
 */daml.js/
 */daml.js
 
+# postgres volume
+docker/postgres-data
+
+*.jar
+
 *.log
