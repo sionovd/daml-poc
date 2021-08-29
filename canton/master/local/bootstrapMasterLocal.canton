@@ -1,0 +1,3 @@
+nodes.local start
+
+masterBuilding.domains.connect_local(masterDomain)

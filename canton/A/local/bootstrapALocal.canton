@@ -1,0 +1,3 @@
+nodes.local start
+
+buildingA.domains.connect_local(domainA)
