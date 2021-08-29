@@ -14,6 +14,7 @@ test_passage = scenario do
   valid_passage_by_master <- submit master do
     create GlobalPassage with 
       id=11
+      originalIssuer=master
       master=master
       readers = [server1, server2]
       citizenId=123456782
@@ -45,6 +46,7 @@ test_passage = scenario do
   duplicate_passage_by_master <- submitMustFail master do 
     create GlobalPassage with 
       id=11
+      originalIssuer=master
       master=master
       readers = [server1, server2]
       citizenId=123456782
@@ -64,6 +66,7 @@ test_passage_sync = scenario do
   valid_passage_by_master <- submit master do
     create GlobalPassage with 
       id=11
+      originalIssuer=master
       master=master
       readers = [server1, server2]
       citizenId=123456782
@@ -145,6 +148,7 @@ test_master_can_create_only_global_passage = scenario do
   global_passage_by_master <- submit master do
     create GlobalPassage with 
       id=10
+      originalIssuer=master
       readers = [server1, server2]
       citizenId=123456782
       club="badabing"
@@ -155,6 +159,7 @@ test_master_can_create_only_global_passage = scenario do
   global_passage_by_server1 <- submitMustFail server1 do
     create GlobalPassage with 
       id=100
+      originalIssuer=master
       readers = [server1, server2]
       citizenId=123456782
       club="badabing"
