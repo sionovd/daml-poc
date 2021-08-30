@@ -1,0 +1,21 @@
+services:
+
+  participant-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: supersafe
+      POSTGRES_USER: canton
+      POSTGRES_DB: participant-db
+    ports:
+      - 5434:5432 
+
+  domain-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: supersafe
+      POSTGRES_USER: canton
+      POSTGRES_DB: domain-db
+    ports:
+      - 5435:5432 

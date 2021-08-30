@@ -1,3 +1,5 @@
 nodes.local start
 
-buildingA.domains.connect_local(domainA)
+if (buildingA.domains.config(domainA.name).isEmpty) {
+    buildingA.domains.connect_local(domainA)
+}
