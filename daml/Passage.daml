@@ -1,5 +1,30 @@
 module Passage where
 
+import Daml.Script
+import Permit
+
+
+template LocalPassageRequest with
+    id: Int
+    master: Party
+    issuer: Party
+    citizenId: Int 
+    club: Text
+    passageDate: Time
+  where
+    signatory issuer
+    observer master
+    key (id, issuer) : (Int, Party)
+    maintainer key._2
+    ensure issuer /= master
+
+    controller issuer can
+      CreateLocalPassage : ContractId LocalPassage
+        do
+          rec <- queryFilter @LocalPermit directorUK (\ap -> (ap.seller == directorCN))
+          assert (rec.owner == owner)
+           
+
 template LocalPassage with
     id: Int
     master: Party
