@@ -2,10 +2,6 @@ sdk-version: 1.16.0
 name: daml
 version: 0.1.0
 source: daml
-parties:
-- Server1
-- Server2
-- Master
 dependencies:
 - daml-prim
 - daml-stdlib
