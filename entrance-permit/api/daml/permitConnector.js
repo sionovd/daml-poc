@@ -43,3 +43,15 @@ exports.createPermitContract = async (citizenId, permitId, startDate, endDate, c
 
     }
 }
+
+exports.updatePermitContract = async (permitId, endDate) => {
+    const localPermit = await ledger.fetchByKey(Permit.Permit.LocalPermit, { _1: permitId, _2: credentials.party });
+    if (localPermit) {
+        await ledger.exercise(Permit.Permit.LocalPermit.Update_Local_Permit, permitCId, { newEndDate: endDate, newTimestamp: new Date(Date.now()) });
+    } else {
+        const globalPermit = await ledger.fetchByKey(Permit.Permit.GlobalPermit, { _1: permitId, _2: process.env.master });
+        if (globalPermit) {
+            await ledger.exercise(Permit.Permit.GlobalPermit.Update_Local_Permit, permitCId, { newEndDate: endDate, newTimestamp: new Date(Date.now()) });
+        }
+    }
+}

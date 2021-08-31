@@ -38,7 +38,14 @@ template LocalPermit
                     create GlobalPermit with originalIssuer = issuer, ..
                   else do 
                     return existingPermitCid
-    
+
+    controller issuer can
+      Update_Local_Permit : ContractId LocalPermit
+        with
+          newEndDate: Time
+          newTimestamp: Time
+        do
+          create LocalPermit with ..
 
 template GlobalPermit with
     id: Int
@@ -57,3 +64,11 @@ template GlobalPermit with
     maintainer key._2
 
     ensure startDate < endDate
+
+    controller master, originalIssuer can
+      Update_Global_Permit : ContractId GlobalPermit
+        with
+          newEndDate: Time
+          newTimestamp: Time
+        do
+          create GlobalPermit with ..
