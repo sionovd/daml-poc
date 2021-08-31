@@ -16,7 +16,7 @@ template LocalPermit
     key (id, issuer) : (Int, Party)
     maintainer key._2
 
-    ensure startDate < endDate && issuer /= master
+    ensure startDate < endDate
 
     controller master can
       Permit_Synchronize : ContractId GlobalPermit

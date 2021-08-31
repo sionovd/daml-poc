@@ -20,6 +20,19 @@ ledger.streamQueries(Passage.Passage.GlobalPassage, [{ master: process.env.maste
         }
     });
 
+// Sync every passage created by other then the Master 
+if (credentials.party == process.env.master) {
+    ledger.streamQueries(Passage.Passage.LocalPassage, [])
+        .on("change", async (state, events) => {
+            for (let passageEvent in events) {
+                const passageCId = events[passageEvent].created?.contractId;
+                if (passageCId) {
+                    await ledger.exercise(Passage.Passage.LocalPassage.Passage_Synchronize, passageCId, { readers: process.env.observers.split(',') });
+                }
+            }
+        });
+}
+
 exports.createPassageContract = async (citizenId, passageId, club) => {
     let passageContract = await ledger.fetchByKey(Passage.Passage.LocalPassage, { _1: passageId, _2: credentials.party });
     if (passageContract === null) {

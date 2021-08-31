@@ -139,37 +139,6 @@ test_reading_permissions = scenario do
 
   return ()
 
-test_master_can_create_only_global_permit = scenario do
-  master <-  getParty "MainServer"
-  server1 <-  getParty "server1"
-  server2 <-  getParty "server2"
-  let timestamp = time (date 2021 Aug 25) 19 00 00
-
-  -- Fails because master can only create Global Permit
-  local_permit_by_master <- submitMustFail master do
-    create LocalPermit with 
-      id=10
-      issuer=master 
-      citizenId=123456782
-      club="badabing"
-      startDate=time (date 2021 Aug 24) 14 30 00  
-      endDate=time (date 2021 Aug 25) 19 31 14  
-      ..
-
-  global_permit_by_master <- submit master do
-    create GlobalPermit with 
-      id=10
-      originalIssuer=master
-      readers = [server1, server2]
-      citizenId=123456782
-      club="badabing"
-      startDate=time (date 2021 Aug 24) 14 30 00  
-      endDate=time (date 2021 Aug 25) 19 31 14  
-      ..
-
-  return ()
-
-
 test_conflicts_permit : Scenario ()
 test_conflicts_permit = scenario do
   master <-  getParty "MainServer"

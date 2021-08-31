@@ -10,7 +10,7 @@ const ledger = new Ledger.default({ token: credentials.token, httpBaseUrl: damlC
 ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: process.env.master }])
     .on("change", async (state, events) => {
         for (let permitEvent in events) {
-            const permit = events[permitEvent]?.created.payload;
+            const permit = events[permitEvent].created?.payload;
             if (permit != null && permit.originalIssuer != credentials.party) {
                 const isPermitExist = (await permitRepository.getPermitById(permit.id))?.length > 0;
                 if (!isPermitExist) {
@@ -20,6 +20,19 @@ ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: process.env.master }
         }
     });
 
+// Sync every permit created by other then the Master 
+if (credentials.party == process.env.master) {
+    ledger.streamQueries(Permit.Permit.LocalPermit, [])
+        .on("change", async (state, events) => {
+            for (let permitEvent in events) {
+                const permitCId = events[permitEvent].created?.contractId;
+                if (permitCId) {
+                    await ledger.exercise(Permit.Permit.LocalPermit.Permit_Synchronize, permitCId, { readers: process.env.observers.split(',') });
+                }
+            }
+        });
+}
+
 exports.createPermitContract = async (citizenId, permitId, startDate, endDate, club) => {
     let permitContract = await ledger.fetchByKey(Permit.Permit.LocalPermit, { _1: permitId, _2: credentials.party });
     if (permitContract === null) {
@@ -27,5 +40,6 @@ exports.createPermitContract = async (citizenId, permitId, startDate, endDate, c
         endDate = new Date(endDate);
         const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, 'timestamp': new Date(Date.now()) };
         permitContract = await ledger.create(Permit.Permit.LocalPermit, permit);
+
     }
 }
