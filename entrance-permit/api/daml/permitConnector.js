@@ -27,7 +27,7 @@ if (credentials.party == process.env.master) {
             for (let permitEvent in events) {
                 const permitCId = events[permitEvent].created?.contractId;
                 if (permitCId) {
-                    const result = await ledger.exercise(Permit.Permit.LocalPermit.Permit_Synchronize, permitCId, { readers: process.env.observers.split(',') });
+                    await ledger.exercise(Permit.Permit.LocalPermit.Permit_Synchronize, permitCId, { readers: process.env.observers.split(',') });
                 }
             }
         });
@@ -38,12 +38,8 @@ exports.createPermitContract = async (citizenId, permitId, startDate, endDate, c
     if (permitContract === null) {
         startDate = new Date(startDate);
         endDate = new Date(endDate);
-        if (credentials.party == process.env.master) {
-            const permit = { id: permitId, originalIssuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, readers: process.env.observers.split(','), 'timestamp': new Date(Date.now()) };
-            permitContract = await ledger.create(Permit.Permit.GlobalPermit, permit);
-        } else {
-            const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, 'timestamp': new Date(Date.now()) };
-            permitContract = await ledger.create(Permit.Permit.LocalPermit, permit);
-        }
+        const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, 'timestamp': new Date(Date.now()) };
+        permitContract = await ledger.create(Permit.Permit.LocalPermit, permit);
+
     }
 }
