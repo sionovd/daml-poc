@@ -29,9 +29,8 @@ CREATE TABLE IF NOT EXISTS public.passages
 (
     passage_id integer NOT NULL,
     citizen_id integer NOT NULL,
-    pass_date time with time zone NOT NULL,
+    pass_date date NOT NULL,
     club text COLLATE pg_catalog."default" NOT NULL,
-    is_approved boolean NOT NULL,
     CONSTRAINT passages_pkey PRIMARY KEY (passage_id)
 )
 
