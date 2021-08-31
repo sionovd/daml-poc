@@ -9,6 +9,7 @@ template LocalPermit
     club: Text
     startDate: Time
     endDate: Time
+    timestamp: Time
   where
     signatory issuer
     observer master
@@ -21,8 +22,22 @@ template LocalPermit
       Permit_Synchronize : ContractId GlobalPermit
         with
           readers: [Party]
-        do 
-          create GlobalPermit with originalIssuer = issuer, .. 
+        do
+        existingPermit <- lookupByKey @GlobalPermit (id, master)
+        case existingPermit of
+          None -> create GlobalPermit with originalIssuer = issuer, .. 
+          Some existingPermitCid  -> do 
+            existingPermit <- fetch existingPermitCid
+            if existingPermit.originalIssuer == master
+              then do
+                return existingPermitCid
+              else do
+                if existingPermit.timestamp < timestamp
+                  then do 
+                    archive existingPermitCid
+                    create GlobalPermit with originalIssuer = issuer, ..
+                  else do 
+                    return existingPermitCid
     
 
 template GlobalPermit with
@@ -34,6 +49,7 @@ template GlobalPermit with
     club: Text
     startDate: Time
     endDate: Time
+    timestamp: Time
   where
     signatory master
     observer readers
