@@ -24,3 +24,6 @@ exports.computeCredentials = (party) => {
 // exports.httpBaseUrl = undefined;
 exports.httpBaseUrl = `http://localhost:7575/`;
 exports.wsBaseUrl = "ws://localhost:7575/"; // same as for the http but ws (websocket)
+exports.issuer = process.env.issuer;
+exports.master = process.env.master;
+exports.observers = process.env.observers.split(',');
