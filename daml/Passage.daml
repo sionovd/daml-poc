@@ -36,4 +36,3 @@ template GlobalPassage with
     observer readers
     key(id, master) : (Int, Party)
     maintainer key._2
-

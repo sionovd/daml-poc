@@ -10,6 +10,7 @@ test_permit = scenario do
   master <-  getParty "MainServer"
   server1 <-  getParty "server1"
   server2 <-  getParty "server2"
+  let timestamp = time (date 2021 Aug 25) 19 00 00
 
   valid_permit_by_master <- submit master do
     create GlobalPermit with 
@@ -68,10 +69,12 @@ test_permit = scenario do
 
   return ()
 
+test_permit_sync : Scenario ()
 test_permit_sync = scenario do
   master <-  getParty "MainServer"
   server1 <-  getParty "server1"
   server2 <-  getParty "server2"
+  let timestamp = time (date 2021 Aug 25) 19 00 00
 
   valid_permit_by_master <- submit master do
     create GlobalPermit with 
@@ -109,7 +112,7 @@ test_permit_sync = scenario do
     exercise valid_permit_by_server1 Permit_Synchronize
       with readers = [server1, server2]
 
-  sync_with_master_conflict <- submitMustFail master do
+  sync_with_master_conflict <- submit master do
     exercise permit_with_existing_id_in_master Permit_Synchronize
       with readers = [server1, server2]
 
@@ -119,6 +122,7 @@ test_reading_permissions = scenario do
   master <-  getParty "MainServer"
   server1 <-  getParty "server1"
   server2 <-  getParty "server2"
+  let timestamp = time (date 2021 Aug 25) 19 00 00
 
   valid_permit_by_server1 <- submit server1 do
     create LocalPermit with 
@@ -139,6 +143,7 @@ test_master_can_create_only_global_permit = scenario do
   master <-  getParty "MainServer"
   server1 <-  getParty "server1"
   server2 <-  getParty "server2"
+  let timestamp = time (date 2021 Aug 25) 19 00 00
 
   -- Fails because master can only create Global Permit
   local_permit_by_master <- submitMustFail master do
@@ -161,5 +166,119 @@ test_master_can_create_only_global_permit = scenario do
       startDate=time (date 2021 Aug 24) 14 30 00  
       endDate=time (date 2021 Aug 25) 19 31 14  
       ..
+
+  return ()
+
+
+test_conflicts_permit : Scenario ()
+test_conflicts_permit = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+      
+  valid_permit_by_server1 <- submit server1 do
+    create LocalPermit with 
+      id=1
+      issuer=server1 
+      citizenId=123456782
+      club="A"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14
+      timestamp=time (date 2021 Aug 31) 13 30 00  
+      ..
+
+  valid_permit_by_server2 <- submit server2 do
+    create LocalPermit with 
+      id=1
+      issuer=server2 
+      citizenId=123456782
+      club="B"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14
+      timestamp=time (date 2021 Aug 31) 14 30 00  
+      ..
+
+
+  sync_server1_with_master <- submit master do
+    exercise valid_permit_by_server1 Permit_Synchronize
+      with readers = [server1, server2]
+
+  sync_server2_with_master <- submit master do
+    exercise valid_permit_by_server2 Permit_Synchronize
+      with readers = [server1, server2]
+
+  return ()
+
+test_conflicts_permit2 : Scenario ()
+test_conflicts_permit2 = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+      
+  valid_permit_by_server1 <- submit server1 do
+    create LocalPermit with 
+      id=1
+      issuer=server1 
+      citizenId=123456782
+      club="A"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14
+      timestamp=time (date 2021 Aug 31) 13 30 00  
+      ..
+
+  valid_permit_by_server2 <- submit server2 do
+    create LocalPermit with 
+      id=1
+      issuer=server2 
+      citizenId=123456782
+      club="B"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14
+      timestamp=time (date 2021 Aug 31) 14 30 00  
+      ..
+
+
+  sync_server2_with_master <- submit master do
+    exercise valid_permit_by_server2 Permit_Synchronize
+      with readers = [server1, server2]
+
+  sync_server1_with_master <- submit master do
+    exercise valid_permit_by_server1 Permit_Synchronize
+      with readers = [server1, server2]
+
+  return ()
+
+test_conflicts_permit3 : Scenario ()
+test_conflicts_permit3 = scenario do
+  master <-  getParty "MainServer"
+  server1 <-  getParty "server1"
+  server2 <-  getParty "server2"
+      
+  valid_permit_by_server1 <- submit server1 do
+    create LocalPermit with 
+      id=1
+      issuer=server1 
+      citizenId=123456782
+      club="A"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14
+      timestamp=time (date 2021 Aug 31) 13 30 00  
+      ..
+
+  valid_permit_by_master <- submit master do
+    create GlobalPermit with 
+      id=1
+      originalIssuer=master 
+      citizenId=123456782
+      readers=[server1, server2]
+      club="B"
+      startDate=time (date 2021 Aug 24) 14 30 00  
+      endDate=time (date 2021 Aug 25) 19 31 14
+      timestamp=time (date 2021 Aug 31) 14 30 00  
+      ..
+
+  sync_server1_with_master <- submit master do
+    exercise valid_permit_by_server1 Permit_Synchronize
+      with readers = [server1, server2]
 
   return ()
