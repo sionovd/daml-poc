@@ -21,19 +21,13 @@ ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: process.env.master }
     });
 
 // Sync every permit created by other then the Master 
-if (credentials.party == damlConfig.master) {
+if (credentials.party == process.env.master) {
     ledger.streamQueries(Permit.Permit.LocalPermit, [])
         .on("change", async (state, events) => {
             for (let permitEvent in events) {
                 const permitCId = events[permitEvent].created?.contractId;
                 if (permitCId) {
-                    try {
-                        const result = await ledger.exercise(Permit.Permit.LocalPermit.Permit_Synchronize, permitCId, { readers: ["Server1", "Server2"] });
-                        console.log('good', result);
-                    } catch (error) {
-                        console.error('not good', error);
-                    }
-
+                    const result = await ledger.exercise(Permit.Permit.LocalPermit.Permit_Synchronize, permitCId, { readers: process.env.observers.split(',') });
                 }
             }
         });
@@ -44,7 +38,12 @@ exports.createPermitContract = async (citizenId, permitId, startDate, endDate, c
     if (permitContract === null) {
         startDate = new Date(startDate);
         endDate = new Date(endDate);
-        const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate };
-        permitContract = await ledger.create(Permit.Permit.LocalPermit, permit);
+        if (credentials.party == process.env.master) {
+            const permit = { id: permitId, originalIssuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, readers: process.env.observers.split(',') };
+            permitContract = await ledger.create(Permit.Permit.GlobalPermit, permit);
+        } else {
+            const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate };
+            permitContract = await ledger.create(Permit.Permit.LocalPermit, permit);
+        }
     }
 }
