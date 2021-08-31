@@ -39,10 +39,10 @@ exports.createPermitContract = async (citizenId, permitId, startDate, endDate, c
         startDate = new Date(startDate);
         endDate = new Date(endDate);
         if (credentials.party == process.env.master) {
-            const permit = { id: permitId, originalIssuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, readers: process.env.observers.split(',') };
+            const permit = { id: permitId, originalIssuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, readers: process.env.observers.split(','), 'timestamp': new Date(Date.now()) };
             permitContract = await ledger.create(Permit.Permit.GlobalPermit, permit);
         } else {
-            const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate };
+            const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, 'timestamp': new Date(Date.now()) };
             permitContract = await ledger.create(Permit.Permit.LocalPermit, permit);
         }
     }

@@ -18,3 +18,9 @@ exports.createPermit = async function(req, res) {
     });
     res.status(200).send(msg);
 }
+
+exports.updatePermit = async function(req, res) {
+    const params = {...req.params, ...req.query};
+    await permitRepository.updatePermit(params.permitId, params.endDate);
+    res.status(200).send("Permit updated");
+}
