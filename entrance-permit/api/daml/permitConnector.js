@@ -25,7 +25,7 @@ exports.createPermitContract = async (citizenId, permitId, startDate, endDate, c
     if (permitContract === null) {
         startDate = new Date(startDate);
         endDate = new Date(endDate);
-        const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate };
+        const permit = { id: permitId, issuer: credentials.party, master: process.env.master, citizenId, club, startDate, endDate, 'timestamp': new Date(Date.now()) };
         permitContract = await ledger.create(Permit.Permit.LocalPermit, permit);
     }
 }
