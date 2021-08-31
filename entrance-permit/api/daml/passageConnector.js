@@ -27,7 +27,7 @@ if (credentials.party == process.env.master) {
             for (let passageEvent in events) {
                 const passageCId = events[passageEvent].created?.contractId;
                 if (passageCId) {
-                    const result = await ledger.exercise(Passage.Passage.GlobalPassage.Passage_Synchronize, passageCId, { readers: process.env.observers.split(',') });
+                    const result = await ledger.exercise(Passage.Passage.LocalPassage.Passage_Synchronize, passageCId, { readers: process.env.observers.split(',') });
                 }
             }
         });
