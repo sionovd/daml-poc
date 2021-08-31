@@ -20,9 +20,9 @@ ledger.streamQueries(Passage.Passage.GlobalPassage, [{ master: process.env.maste
         }
     });
 
-// Sync every permit created by other then the Master 
+// Sync every passage created by other then the Master 
 if (credentials.party == process.env.master) {
-    ledger.streamQueries(Passage.Passage.GlobalPassage, [])
+    ledger.streamQueries(Passage.Passage.LocalPassage, [])
         .on("change", async (state, events) => {
             for (let passageEvent in events) {
                 const passageCId = events[passageEvent].created?.contractId;
