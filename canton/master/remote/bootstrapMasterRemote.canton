@@ -1,0 +1,37 @@
+// create the parties
+//val masterBuildingParty = masterBuilding.parties.enable("masterBuilding-party")
+
+// Wait until the party enabling has taken effect and a heartbeat has been sent afterwards
+//val partyAssignment = Set(masterBuildingParty -> masterBuilding)
+//masterBuilding.parties.await_topology_heartbeat(partyAssignment)
+
+def connectToRemoteDomain() = {
+    val participant = participants.remote.find(_.name == "masterBuilding").get
+    val remoteDomainName = "domainA"
+    val remoteDomainHost = "http://20.56.179.251"
+    val remoteDomainPort = "13010"
+
+    val remoteDomainUrl = remoteDomainHost + ":" + remoteDomainPort
+
+    participant.domains.connect(remoteDomainName, remoteDomainUrl)
+
+    utils.retry_until_true() {
+        participant.domains.active(remoteDomainName)
+    }
+
+    // verify that the connection works
+    participant.health.ping(participant)
+}
+
+def uploadDar() = {
+    participants.all.dars.upload("../../daml-poc/.daml/dist/daml-0.1.0.dar")
+}
+
+connectToRemoteDomain()
+
+
+
+
+//buildingC.parties.await_topology_heartbeat(partyAssignment)
+
+//participants.all.dars.upload("../../daml-poc/.daml/dist/daml-0.1.0.dar")
