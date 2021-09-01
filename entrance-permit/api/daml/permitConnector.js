@@ -12,9 +12,11 @@ ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: damlConfig.master }]
         for (let permitEvent in events) {
             const permit = events[permitEvent].created?.payload;
             if (permit != null && permit.originalIssuer != credentials.party) {
-                const isPermitExist = (await permitRepository.getPermitById(permit.id))?.length > 0;
-                if (!isPermitExist) {
+                const permitInDB = await permitRepository.getPermitById(permit.id);
+                if (permitInDB?.length == 0) {
                     await permitRepository.createPermit(permit.citizenId, permit.id, permit.startDate, permit.endDate, permit.club);
+                } else {
+                    await permitRepository.updatePermit(permit.id, permit.endDate);
                 }
             }
         }
@@ -41,5 +43,17 @@ exports.createPermitContract = async (citizenId, permitId, startDate, endDate, c
         const permit = { id: permitId, issuer: credentials.party, master: damlConfig.master, citizenId, club, startDate, endDate, 'timestamp': new Date(Date.now()) };
         permitContract = await ledger.create(Permit.Permit.LocalPermit, permit);
 
+    }
+}
+
+exports.updatePermitContract = async (permitId, endDate) => {
+    const localPermit = await ledger.fetchByKey(Permit.Permit.LocalPermit, { _1: permitId, _2: credentials.party });
+    if (localPermit) {
+        await ledger.exercise(Permit.Permit.LocalPermit.Update_Local_Permit, localPermit.contractId, { caller: damlConfig.issuer, newEndDate: new Date(endDate), newTimestamp: new Date(Date.now()) });
+    } else {
+        const globalPermit = await ledger.fetchByKey(Permit.Permit.GlobalPermit, { _1: permitId, _2: damlConfig.master });
+        if (globalPermit) {
+            await ledger.exercise(Permit.Permit.GlobalPermit.Update_Global_Permit, globalPermit.contractId, { caller: damlConfig.issuer, newEndDate: new Date(endDate), newTimestamp: new Date(Date.now()) });
+        }
     }
 }
