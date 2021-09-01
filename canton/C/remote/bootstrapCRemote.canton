@@ -1,0 +1,20 @@
+def connectToRemoteDomain() = {
+    val participant = participants.remote.find(_.name == "buildingC").get
+    val remoteDomainName = "masterDomain"
+    val remoteDomainHost = "http://51.124.99.29"
+    val remoteDomainPort = "13000"
+
+    val remoteDomainUrl = remoteDomainHost + ":" + remoteDomainPort
+    participant.domains.connect(remoteDomainName, remoteDomainUrl)
+
+    utils.retry_until_true() {
+        participant.domains.active(remoteDomainName)
+    }
+
+    // verify that the connection works
+    participant.health.ping(participant)
+}
+
+if (buildingC.domains.config(masterDomain.name).isEmpty) {
+    connectToRemoteDomain()
+}
