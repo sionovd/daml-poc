@@ -1,6 +1,6 @@
 const encode = require('jwt-simple');
 
-const ledgerId = 'daml-sandbox';
+const ledgerId = process.env.ledgerId;
 
 const APPLICATION_ID = 'daml';
 const SECRET_KEY = 'secret';
@@ -21,7 +21,6 @@ exports.computeCredentials = (party) => {
     return {party, token, ledgerId};
 }
 
-// exports.httpBaseUrl = undefined;
 exports.httpBaseUrl = `http://localhost:7575/`;
 exports.wsBaseUrl = "ws://localhost:7575/"; // same as for the http but ws (websocket)
 exports.issuer = process.env.issuer;
