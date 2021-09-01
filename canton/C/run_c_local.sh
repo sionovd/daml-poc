@@ -1,3 +1,3 @@
 #!/bin/bash
 
-canton -c local/cantonCLocal.conf --bootstrap local/bootstrapCLocal.canton
+canton -c ../postgres.conf -c local/cantonCLocal.conf --bootstrap local/bootstrapCLocal.canton
