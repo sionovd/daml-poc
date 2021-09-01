@@ -20,4 +20,4 @@ env:
     
     observers = buildingA,masterBuilding,buildingC
     
-    ledgerId=daml-sandbox
+    ledgerId = daml-sandbox
