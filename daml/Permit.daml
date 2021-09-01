@@ -45,7 +45,7 @@ template LocalPermit
           newEndDate: Time
           newTimestamp: Time
         do
-          create LocalPermit with ..
+          create LocalPermit with endDate = newEndDate, timestamp = newTimestamp, ..
 
 template GlobalPermit with
     id: Int
@@ -71,4 +71,4 @@ template GlobalPermit with
           newEndDate: Time
           newTimestamp: Time
         do
-          create GlobalPermit with ..
+          create GlobalPermit with endDate = newEndDate, timestamp = newTimestamp, ..
