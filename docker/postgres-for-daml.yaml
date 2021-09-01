@@ -1,0 +1,17 @@
+# Use postgres/example user/password credentials
+# version: '3.1'
+#
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 'daml'
+      POSTGRES_USER: 'daml'
+      POSTGRES_DB: 'damlledger'
+    ports:
+      - 5433:5432 
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
