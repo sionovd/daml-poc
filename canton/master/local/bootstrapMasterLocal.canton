@@ -1,3 +1,5 @@
 nodes.local start
 
-masterBuilding.domains.connect_local(masterDomain)
+if (masterBuilding.domains.config(masterDomain.name).isEmpty) {
+  masterBuilding.domains.connect_local(masterDomain)
+}

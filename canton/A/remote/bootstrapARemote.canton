@@ -1,10 +1,3 @@
-//val buildingAParty = buildingA.parties.enable("buildingA-party")
-
-//val partyAssignment = Set(buildingAParty -> buildingA)
-
-//buildingA.parties.await_topology_heartbeat(partyAssignment)
-
-
 def connectToRemoteDomain() = {
     val participant = participants.remote.find(_.name == "buildingA").get
     val remoteDomainName = "masterDomain"
@@ -12,7 +5,10 @@ def connectToRemoteDomain() = {
     val remoteDomainPort = "13000"
 
     val remoteDomainUrl = remoteDomainHost + ":" + remoteDomainPort
-    participant.domains.connect(remoteDomainName, remoteDomainUrl)
+
+    if(!participant.domains.list_registered().map(_._1.domain.unwrap).exists(_  == remoteDomainName)) {
+      participant.domains.connect(remoteDomainName, remoteDomainUrl)
+    }
 
     utils.retry_until_true() {
         participant.domains.active(remoteDomainName)
@@ -25,20 +21,3 @@ def connectToRemoteDomain() = {
 if (buildingA.domains.config(masterDomain.name).isEmpty) {
     connectToRemoteDomain()
 }
-
-
-
-
-//buildingA.domains.connect_local(domainA)
-//buildingA.domains.connect(domainB)
-
-//val aDomainAlias = domainA.name
-
-// create the parties
-//val systemA = buildingA.parties.enable("SystemA")
-
-// Wait until the party enabling has taken effect and a heartbeat has been sent afterwards
-//val aPartyAssignment = Set(systemA -> buildingA)
-//buildingA.parties.await_topology_heartbeat(aPartyAssignment)
-//buildingB.parties.await_topology_heartbeat(aPartyAssignment)
-//buildingC.parties.await_topology_heartbeat(aPartyAssignment)

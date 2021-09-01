@@ -5,7 +5,9 @@ def connectToRemoteDomain() = {
     val remoteDomainPort = "13000"
 
     val remoteDomainUrl = remoteDomainHost + ":" + remoteDomainPort
-    participant.domains.connect(remoteDomainName, remoteDomainUrl)
+    if (!participant.domains.list_registered().map(_._1.domain.unwrap).exists(_  == remoteDomainName)) {
+        participant.domains.connect(remoteDomainName, remoteDomainUrl)
+    }
 
     utils.retry_until_true() {
         participant.domains.active(remoteDomainName)
