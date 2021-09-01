@@ -5,7 +5,7 @@
 //val partyAssignment = Set(masterBuildingParty -> masterBuilding)
 //masterBuilding.parties.await_topology_heartbeat(partyAssignment)
 
-def connectToRemoteDomain() = {
+def connectToDomainA() = {
     val participant = participants.remote.find(_.name == "masterBuilding").get
     val remoteDomainName = "domainA"
     val remoteDomainHost = "http://20.56.179.251"
@@ -23,11 +23,35 @@ def connectToRemoteDomain() = {
     participant.health.ping(participant)
 }
 
+def connectToDomainC() = {
+    val participant = participants.remote.find(_.name == "masterBuilding").get
+    val remoteDomainName = "domainC"
+    val remoteDomainHost = "http://20.50.140.65"
+    val remoteDomainPort = "13020"
+
+    val remoteDomainUrl = remoteDomainHost + ":" + remoteDomainPort
+
+    participant.domains.connect(remoteDomainName, remoteDomainUrl)
+
+    utils.retry_until_true() {
+        participant.domains.active(remoteDomainName)
+    }
+
+    // verify that the connection works
+    participant.health.ping(participant)
+}
+
 def uploadDar() = {
     participants.all.dars.upload("../../daml-poc/.daml/dist/daml-0.1.0.dar")
 }
 
-connectToRemoteDomain()
+if (masterBuilding.domains.config(domainA.name).isEmpty) {
+    connectToDomainA()
+}
+
+if (masterBuilding.domains.config(domainC.name).isEmpty) {
+    connectToDomainC()
+}
 
 
 

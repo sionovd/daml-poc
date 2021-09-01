@@ -22,7 +22,9 @@ def connectToRemoteDomain() = {
     participant.health.ping(participant)
 }
 
-connectToRemoteDomain()
+if (buildingA.domains.config(masterDomain.name).isEmpty) {
+    connectToRemoteDomain()
+}
 
 
 
