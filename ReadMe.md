@@ -7,6 +7,6 @@ run commands:
     npm start
 
 env:
-    issuer=A
-    master = BMaster
-    observers = A,BMaster,C
+    issuer = buildingA
+    master = masterBuilding
+    observers = buildingA,masterBuilding,buildingC
