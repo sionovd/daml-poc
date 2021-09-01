@@ -21,3 +21,5 @@ env:
     observers = buildingA,masterBuilding,buildingC
     
     ledgerId = daml-sandbox
+
+    ledgerUrl = localhost:7575

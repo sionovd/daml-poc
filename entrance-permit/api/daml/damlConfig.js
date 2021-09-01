@@ -21,8 +21,8 @@ exports.computeCredentials = (party) => {
     return {party, token, ledgerId};
 }
 
-exports.httpBaseUrl = `http://localhost:7575/`;
-exports.wsBaseUrl = "ws://localhost:7575/"; // same as for the http but ws (websocket)
+exports.httpBaseUrl = `http://${process.env.ledgerUrl || 'localhost:7575'}/`;
+exports.wsBaseUrl = `ws://${process.env.ledgerUrl || 'localhost:7575'}/`; // same as for the http but ws (websocket)
 exports.issuer = process.env.issuer;
 exports.master = process.env.master;
 exports.observers = process.env.observers.split(',');
