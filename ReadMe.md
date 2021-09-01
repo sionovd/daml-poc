@@ -10,3 +10,4 @@ env:
     issuer = buildingA
     master = masterBuilding
     observers = buildingA,masterBuilding,buildingC
+    ledgerId=daml-sandbox
