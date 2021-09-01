@@ -7,7 +7,7 @@ const permitRepository = require('../repository/permitRepository');
 const ledger = new Ledger.default({ token: credentials.token, httpBaseUrl: damlConfig.httpBaseUrl, wsBaseUrl: damlConfig.wsBaseUrl });
 
 // Check for GlobalPermit created by Master and Sync it
-ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: damlConfig.master }])
+ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: damlConfig.master/*, "offset": 1*/ }])
     .on("change", async (state, events) => {
         for (let permitEvent in events) {
             const permit = events[permitEvent].created?.payload;
@@ -16,7 +16,7 @@ ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: damlConfig.master }]
                 if (permitInDB?.length == 0) {
                     await permitRepository.createPermit(permit.citizenId, permit.id, permit.startDate, permit.endDate, permit.club);
                 } else {
-                    await permitRepository.updatePermit(permit.id, permit.endDate);
+                    await permitRepository.replacePermit(permit.id, permit.endDate, permit.startDate, permit.club);
                 }
             }
         }

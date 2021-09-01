@@ -17,6 +17,12 @@ exports.updatePermit = async (permitId, endDate) => {
         SET end_date = $2
         WHERE p.permit_id = $1;`, [permitId, endDate]);
 };
+
+exports.replacePermit = async (permitId, endDate, startDate, club) => {
+    await pool.query(`UPDATE permits p
+        SET end_date = $2, start_date=$3, club=$4
+        WHERE p.permit_id = $1;`, [permitId, endDate, startDate, club]);
+};
         
 exports.getPermitById = async (permitId) => {
     let results = await pool.query(`SELECT * FROM permits p WHERE p.permit_id = $1`, [permitId]);
