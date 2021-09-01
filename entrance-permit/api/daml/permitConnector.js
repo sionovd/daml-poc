@@ -16,7 +16,7 @@ ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: damlConfig.master }]
                 if (permitInDB?.length == 0) {
                     await permitRepository.createPermit(permit.citizenId, permit.id, permit.startDate, permit.endDate, permit.club);
                 } else {
-                    // await permitRepository.updatePermit(permit.id, permit.endDate);
+                    await permitRepository.updatePermit(permit.id, permit.endDate);
                 }
             }
         }
