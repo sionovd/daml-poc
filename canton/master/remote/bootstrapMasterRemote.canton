@@ -13,8 +13,10 @@ def connectToRemoteDomain() = {
 
     val remoteDomainUrl = remoteDomainHost + ":" + remoteDomainPort
 
-    participant.domains.connect(remoteDomainName, remoteDomainUrl)
-
+    if(!participant.domains.list_registered().map(_._1.domain.unwrap).exists(_  == "domainA")) {
+      participant.domains.connect(remoteDomainName, remoteDomainUrl)
+    }
+    
     utils.retry_until_true() {
         participant.domains.active(remoteDomainName)
     }
@@ -24,8 +26,10 @@ def connectToRemoteDomain() = {
 }
 
 def uploadDar() = {
-    participants.all.dars.upload("../../daml-poc/.daml/dist/daml-0.1.0.dar")
+    participants.all.dars.upload("~/daml-poc/.daml/dist/daml-0.1.0.dar")
 }
+
+scala.util.Try { masterBuilding.domains.reconnect() }
 
 connectToRemoteDomain()
 
