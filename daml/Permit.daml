@@ -39,12 +39,13 @@ template LocalPermit
                   else do 
                     return existingPermitCid
 
-    controller issuer can
-      Update_Local_Permit : ContractId LocalPermit
-        with
-          newEndDate: Time
-          newTimestamp: Time
+    choice Update_Local_Permit : ContractId LocalPermit with
+       caller : Party
+       newEndDate: Time
+       newTimestamp: Time
+     controller caller
         do
+          assert $ elem caller [issuer, master]
           create LocalPermit with endDate = newEndDate, timestamp = newTimestamp, ..
 
 template GlobalPermit with
@@ -65,10 +66,11 @@ template GlobalPermit with
 
     ensure startDate < endDate
 
-    controller master, originalIssuer can
-      Update_Global_Permit : ContractId GlobalPermit
-        with
-          newEndDate: Time
-          newTimestamp: Time
+    choice Update_Global_Permit : ContractId GlobalPermit with
+       caller : Party
+       newEndDate: Time
+       newTimestamp: Time
+     controller caller
         do
+          assert $ elem caller ([master, originalIssuer] ++ readers)
           create GlobalPermit with endDate = newEndDate, timestamp = newTimestamp, ..
