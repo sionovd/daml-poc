@@ -42,7 +42,7 @@ def connectToDomainC() = {
 }
 
 def uploadDar() = {
-    participants.all.dars.upload("../../daml-poc/.daml/dist/daml-0.1.0.dar")
+    participants.all.dars.upload("/home/azureuser/daml-poc/.daml/dist/daml-0.1.0.dar")
 }
 
 if (masterBuilding.domains.config(domainA.name).isEmpty) {
