@@ -46,6 +46,8 @@ def uploadDar() = {
     participants.all.dars.upload("~/daml-poc/.daml/dist/daml-0.1.0.dar")
 }
 
+reconnect()
+
 if (masterBuilding.domains.config(domainA.name).isEmpty) {
     connectToDomainA()
 }
@@ -53,5 +55,3 @@ if (masterBuilding.domains.config(domainA.name).isEmpty) {
 if (masterBuilding.domains.config(domainC.name).isEmpty) {
     connectToDomainC()
 }
-
-reconnect()
