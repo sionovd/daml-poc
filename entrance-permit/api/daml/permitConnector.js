@@ -11,7 +11,7 @@ ledger.streamQueries(Permit.Permit.GlobalPermit, [{ master: damlConfig.master }]
     .on("change", async (state, events) => {
         for (let permitEvent in events) {
             const permit = events[permitEvent].created?.payload;
-            if (permit != null && permit.originalIssuer != credentials.party) {
+            if (permit != null) {
                 const permitInDB = await permitRepository.getPermitById(permit.id);
                 if (permitInDB?.length == 0) {
                     await permitRepository.createPermit(permit.citizenId, permit.id, permit.startDate, permit.endDate, permit.club);
